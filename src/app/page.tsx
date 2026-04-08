@@ -102,6 +102,7 @@ export default function Home() {
   const [reviewQueue, setReviewQueue] = useState<ReviewQueueItem[]>([]);
   const [activeSection, setActiveSection] = useState<Section>("QUANT");
   const [openTopicId, setOpenTopicId] = useState<string | null>(null);
+  const [openSubtopicId, setOpenSubtopicId] = useState<string | null>(null);
 
   const sections = useMemo(() => ["QUANT", "DILR", "VARC"] as const, []);
 
@@ -380,7 +381,10 @@ export default function Home() {
                 <article key={topic.id} className="rounded-xl border border-slate-200 bg-slate-50/60">
                   <button
                     type="button"
-                    onClick={() => setOpenTopicId((prev) => (prev === topic.id ? null : topic.id))}
+                    onClick={() => {
+                      setOpenTopicId((prev) => (prev === topic.id ? null : topic.id));
+                      setOpenSubtopicId(null);
+                    }}
                     className="flex w-full items-center justify-between gap-3 p-4 text-left"
                   >
                     <div>
@@ -415,9 +419,16 @@ export default function Home() {
                       {topic.subtopics.map((subtopic) => {
                         const form = proofForms[subtopic.id] ?? INITIAL_FORM;
                         const isPending = subtopic.latest_submission?.status === "pending";
+                        const isSubtopicOpen = openSubtopicId === subtopic.id;
                         return (
                           <div key={subtopic.id} className="rounded-lg border border-slate-200 bg-white p-4">
-                            <div className="mb-3 flex items-center justify-between">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setOpenSubtopicId((prev) => (prev === subtopic.id ? null : subtopic.id))
+                              }
+                              className="flex w-full items-center justify-between gap-2 text-left"
+                            >
                               <p className="text-sm font-semibold text-slate-900">{subtopic.title}</p>
                               <div className="flex items-center gap-2">
                                 <StatusChip status={subtopic.latest_submission?.status ?? null} />
@@ -426,11 +437,16 @@ export default function Home() {
                                     <CheckCircle2 size={13} /> Completed
                                   </span>
                                 )}
+                                {isSubtopicOpen ? (
+                                  <ChevronUp size={16} className="text-slate-500" />
+                                ) : (
+                                  <ChevronDown size={16} className="text-slate-500" />
+                                )}
                               </div>
-                            </div>
+                            </button>
 
-                            {!subtopic.completed && (
-                              <>
+                            {isSubtopicOpen && !subtopic.completed && (
+                              <div className="mt-3 space-y-3 border-t border-slate-200 pt-3">
                                 <div className="grid gap-3 md:grid-cols-2">
                                   <label className="text-sm text-slate-600">
                                     Topic questions done
@@ -465,7 +481,7 @@ export default function Home() {
                                   <ClipboardCheck size={15} />
                                   {isPending ? "Awaiting review" : "Submit for approval"}
                                 </button>
-                              </>
+                              </div>
                             )}
                           </div>
                         );
