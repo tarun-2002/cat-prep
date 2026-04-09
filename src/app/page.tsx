@@ -320,6 +320,25 @@ export default function Home() {
     setIsAllPlansModalOpen(true);
   };
 
+  const deleteWeeklyPlan = async (planId: string) => {
+    setError(null);
+    setInfo(null);
+    const token = await getAccessToken();
+    const res = await fetch(`/api/plans/weekly?plan_id=${encodeURIComponent(planId)}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      setError(json.error ?? "Failed to delete weekly plan");
+      return;
+    }
+
+    setInfo("Weekly plan deleted.");
+    await openAllPlansModal();
+    await refreshDashboard();
+  };
+
   const allSubtopicOptions: PlannerSubtopicOption[] = topics.flatMap((topic) =>
     topic.subtopics.map((subtopic) => ({
       id: subtopic.id,
@@ -1140,10 +1159,18 @@ export default function Home() {
               )}
               {allWeeklyPlans.map((plan) => (
                 <div key={plan.id} className="rounded-lg border border-slate-200 p-4">
-                  <p className="text-sm font-semibold text-slate-800">
-                    {formatPrettyDate(plan.week_start_date)} to{" "}
-                    {formatPrettyDate(plan.week_end_date)}
-                  </p>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-slate-800">
+                      {formatPrettyDate(plan.week_start_date)} to{" "}
+                      {formatPrettyDate(plan.week_end_date)}
+                    </p>
+                    <button
+                      onClick={() => void deleteWeeklyPlan(plan.id)}
+                      className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-100"
+                    >
+                      Delete
+                    </button>
+                  </div>
                   <div className="mt-2 grid gap-3 md:grid-cols-3">
                     {sections.map((section) => {
                       const rows = plan.items.filter(

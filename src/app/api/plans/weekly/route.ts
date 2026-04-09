@@ -184,3 +184,36 @@ export async function GET(request: Request) {
     },
   });
 }
+
+export async function DELETE(request: Request) {
+  const { user, error: authError } = await getUserFromAuthHeader(
+    request.headers.get("authorization"),
+  );
+  if (authError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const url = new URL(request.url);
+  const planId = url.searchParams.get("plan_id");
+  if (!planId) {
+    return NextResponse.json({ error: "plan_id is required" }, { status: 400 });
+  }
+
+  const { error: deleteItemsError } = await supabaseServer
+    .from("weekly_plan_items")
+    .delete()
+    .eq("weekly_plan_id", planId);
+  if (deleteItemsError) {
+    return NextResponse.json({ error: deleteItemsError.message }, { status: 400 });
+  }
+
+  const { error: deletePlanError } = await supabaseServer
+    .from("weekly_plans")
+    .delete()
+    .eq("id", planId);
+  if (deletePlanError) {
+    return NextResponse.json({ error: deletePlanError.message }, { status: 400 });
+  }
+
+  return NextResponse.json({ success: true });
+}
