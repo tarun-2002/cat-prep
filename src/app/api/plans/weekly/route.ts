@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserFromAuthHeader } from "@/lib/api-auth";
+import { isoWeekFromDateOnly } from "@/lib/iso-week";
 import { supabaseServer } from "@/lib/supabase/server";
 
 type CreatePlanPayload = {
@@ -8,13 +9,22 @@ type CreatePlanPayload = {
   subtopic_ids: string[];
 };
 
+function isDateOnlyString(value: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 function normalizeDateRange(startDateInput: string, endDateInput: string) {
-  const start = new Date(startDateInput);
-  const end = new Date(endDateInput);
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
-  if (end.getTime() < start.getTime()) return null;
-  const toDateOnly = (d: Date) => d.toISOString().slice(0, 10);
-  return { start: toDateOnly(start), end: toDateOnly(end) };
+  if (!isDateOnlyString(startDateInput) || !isDateOnlyString(endDateInput)) return null;
+  if (endDateInput < startDateInput) return null;
+  return { start: startDateInput, end: endDateInput };
+}
+
+function todayLocalDateOnly() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 export async function POST(request: Request) {
@@ -98,7 +108,7 @@ export async function GET(request: Request) {
     const { data: plans, error: plansError } = await supabaseServer
       .from("weekly_plans")
       .select("*")
-      .order("week_start_date", { ascending: false });
+      .order("week_start_date", { ascending: true });
     if (plansError) {
       return NextResponse.json({ error: plansError.message }, { status: 400 });
     }
@@ -122,15 +132,23 @@ export async function GET(request: Request) {
       grouped.set(item.weekly_plan_id, list);
     }
 
+    const ordered = [...(plans ?? [])].sort((a, b) =>
+      a.week_start_date.localeCompare(b.week_start_date),
+    );
     return NextResponse.json({
-      plans: (plans ?? []).map((plan) => ({
-        ...plan,
-        items: grouped.get(plan.id) ?? [],
-      })),
+      plans: ordered.map((plan) => {
+        const { isoYear, week } = isoWeekFromDateOnly(plan.week_start_date);
+        return {
+          ...plan,
+          iso_week_year: isoYear,
+          week_number: week,
+          items: grouped.get(plan.id) ?? [],
+        };
+      }),
     });
   }
 
-  const queryDate = url.searchParams.get("date") ?? new Date().toISOString().slice(0, 10);
+  const queryDate = url.searchParams.get("date") ?? todayLocalDateOnly();
 
   const { data: plan, error: planError } = await supabaseServer
     .from("weekly_plans")
@@ -172,11 +190,14 @@ export async function GET(request: Request) {
   const totalGoals = subtopicIds.length;
   const completedGoals = subtopicIds.filter((id) => approvedSet.has(id)).length;
 
+  const { isoYear, week } = isoWeekFromDateOnly(plan.week_start_date);
   return NextResponse.json({
     plan: {
       id: plan.id,
       week_start_date: plan.week_start_date,
       week_end_date: plan.week_end_date,
+      iso_week_year: isoYear,
+      week_number: week,
       items: items ?? [],
       total_goals: totalGoals,
       completed_goals: completedGoals,

@@ -24,6 +24,8 @@ import {
   Video,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
+import { CatExamCountdown } from "@/components/cat-exam-countdown";
+import { isoWeekFromDateOnly } from "@/lib/iso-week";
 import { supabase } from "@/lib/supabase/client";
 
 type Section = "QUANT" | "DILR" | "VARC";
@@ -67,6 +69,8 @@ type WeeklyPlan = {
   id: string;
   week_start_date: string;
   week_end_date: string;
+  week_number?: number;
+  iso_week_year?: number;
   items: Array<{
     subtopic_id: string;
     subtopics: {
@@ -85,6 +89,8 @@ type WeeklyPlanListItem = {
   id: string;
   week_start_date: string;
   week_end_date: string;
+  week_number?: number;
+  iso_week_year?: number;
   items: Array<{
     weekly_plan_id: string;
     subtopic_id: string;
@@ -139,9 +145,13 @@ function StatusChip({ status }: { status: SubmissionState | null }) {
 }
 
 function formatPrettyDate(dateString: string) {
-  const date = new Date(dateString);
+  const parts = dateString.split("-");
+  if (parts.length !== 3) return dateString;
+  const year = Number(parts[0]);
+  const monthIndex = Number(parts[1]) - 1;
+  const day = Number(parts[2]);
+  const date = new Date(year, monthIndex, day);
   if (Number.isNaN(date.getTime())) return dateString;
-  const day = date.getDate();
   const suffix =
     day % 10 === 1 && day !== 11
       ? "st"
@@ -151,9 +161,27 @@ function formatPrettyDate(dateString: string) {
           ? "rd"
           : "th";
   const month = date.toLocaleString("en-US", { month: "long" });
-  const year = date.toLocaleString("en-US", { year: "2-digit" });
+  const shortYear = date.toLocaleString("en-US", { year: "2-digit" });
   const weekday = date.toLocaleString("en-US", { weekday: "long" });
-  return `${day}${suffix} ${month}'${year} ${weekday}`;
+  return `${day}${suffix} ${month}'${shortYear} ${weekday}`;
+}
+
+function toDateOnlyLocal(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function weekLabelFromPlan(plan: {
+  week_start_date: string;
+  week_number?: number;
+  iso_week_year?: number;
+}) {
+  if (plan.week_number != null && plan.iso_week_year != null) {
+    return { week: plan.week_number, isoYear: plan.iso_week_year };
+  }
+  return isoWeekFromDateOnly(plan.week_start_date);
 }
 
 export default function Home() {
@@ -178,8 +206,10 @@ export default function Home() {
   const [isPlannerModalOpen, setIsPlannerModalOpen] = useState(false);
   const [isAllPlansModalOpen, setIsAllPlansModalOpen] = useState(false);
   const [isReviewDrawerOpen, setIsReviewDrawerOpen] = useState(false);
-  const [weekStartDate, setWeekStartDate] = useState<string>(new Date().toISOString().slice(0, 10));
-  const [weekEndDate, setWeekEndDate] = useState<string>(new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10));
+  const [weekStartDate, setWeekStartDate] = useState<string>(toDateOnlyLocal(new Date()));
+  const [weekEndDate, setWeekEndDate] = useState<string>(
+    toDateOnlyLocal(new Date(Date.now() + 6 * 24 * 60 * 60 * 1000)),
+  );
   const [plannerDateRange, setPlannerDateRange] = useState<DateRange | undefined>({
     from: new Date(),
     to: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
@@ -193,6 +223,14 @@ export default function Home() {
   const [plannedSubtopicIds, setPlannedSubtopicIds] = useState<Set<string>>(new Set());
 
   const sections = useMemo(() => ["QUANT", "DILR", "VARC"] as const, []);
+
+  const allWeeklyPlansSorted = useMemo(() => {
+    return [...allWeeklyPlans].sort((a, b) => {
+      const cmp = a.week_start_date.localeCompare(b.week_start_date);
+      if (cmp !== 0) return cmp;
+      return a.week_end_date.localeCompare(b.week_end_date);
+    });
+  }, [allWeeklyPlans]);
 
   useEffect(() => {
     const getSession = async () => {
@@ -275,8 +313,8 @@ export default function Home() {
       return;
     }
 
-    const rangeStart = plannerDateRange.from.toISOString().slice(0, 10);
-    const rangeEnd = plannerDateRange.to.toISOString().slice(0, 10);
+    const rangeStart = toDateOnlyLocal(plannerDateRange.from);
+    const rangeEnd = toDateOnlyLocal(plannerDateRange.to);
     setWeekStartDate(rangeStart);
     setWeekEndDate(rangeEnd);
 
@@ -572,6 +610,8 @@ export default function Home() {
           </div>
         </header>
 
+        <CatExamCountdown />
+
         <section className="grid gap-4 md:grid-cols-3">
           {sections.map((section) => {
             const meta = SECTION_META[section];
@@ -631,31 +671,39 @@ export default function Home() {
               {!currentWeeklyPlan ? (
                 <p className="mt-2 text-sm text-slate-500">No active weekly plan for today.</p>
               ) : (
-                <>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {formatPrettyDate(currentWeeklyPlan.week_start_date)} to{" "}
-                    {formatPrettyDate(currentWeeklyPlan.week_end_date)}
-                  </p>
-                  <div className="mt-3 h-2 w-full rounded-full bg-slate-100">
-                    <div
-                      className="h-2 rounded-full bg-indigo-600"
-                      style={{
-                        width: `${currentWeeklyPlan.total_goals > 0
-                          ? Math.round(
-                            (currentWeeklyPlan.completed_goals / currentWeeklyPlan.total_goals) *
-                            100,
-                          )
-                          : 0
-                          }%`,
-                      }}
-                    />
-                  </div>
-                  <p className="mt-2 text-sm text-slate-700">
-                    Completed: {currentWeeklyPlan.completed_goals} /{" "}
-                    {currentWeeklyPlan.total_goals} | Remaining:{" "}
-                    {currentWeeklyPlan.remaining_goals}
-                  </p>
-                </>
+                (() => {
+                  const { week, isoYear } = weekLabelFromPlan(currentWeeklyPlan);
+                  return (
+                    <>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-indigo-700">
+                        Week {week} · {isoYear}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        {formatPrettyDate(currentWeeklyPlan.week_start_date)} to{" "}
+                        {formatPrettyDate(currentWeeklyPlan.week_end_date)}
+                      </p>
+                      <div className="mt-3 h-2 w-full rounded-full bg-slate-100">
+                        <div
+                          className="h-2 rounded-full bg-indigo-600"
+                          style={{
+                            width: `${currentWeeklyPlan.total_goals > 0
+                              ? Math.round(
+                                (currentWeeklyPlan.completed_goals / currentWeeklyPlan.total_goals) *
+                                100,
+                              )
+                              : 0
+                              }%`,
+                          }}
+                        />
+                      </div>
+                      <p className="mt-2 text-sm text-slate-700">
+                        Completed: {currentWeeklyPlan.completed_goals} /{" "}
+                        {currentWeeklyPlan.total_goals} | Remaining:{" "}
+                        {currentWeeklyPlan.remaining_goals}
+                      </p>
+                    </>
+                  );
+                })()
               )}
             </div>
 
@@ -977,8 +1025,8 @@ export default function Home() {
                   selected={plannerDateRange}
                   onSelect={(range) => {
                     setPlannerDateRange(range);
-                    if (range?.from) setWeekStartDate(range.from.toISOString().slice(0, 10));
-                    if (range?.to) setWeekEndDate(range.to.toISOString().slice(0, 10));
+                    if (range?.from) setWeekStartDate(toDateOnlyLocal(range.from));
+                    if (range?.to) setWeekEndDate(toDateOnlyLocal(range.to));
                   }}
                   numberOfMonths={1}
                   defaultMonth={plannerDateRange?.from}
@@ -1154,16 +1202,23 @@ export default function Home() {
               </button>
             </div>
             <div className="max-h-[70vh] space-y-3 overflow-auto pr-1">
-              {allWeeklyPlans.length === 0 && (
+              {allWeeklyPlansSorted.length === 0 && (
                 <p className="text-sm text-slate-500">No weekly plans created yet.</p>
               )}
-              {allWeeklyPlans.map((plan) => (
+              {allWeeklyPlansSorted.map((plan) => {
+                const { week, isoYear } = weekLabelFromPlan(plan);
+                return (
                 <div key={plan.id} className="rounded-lg border border-slate-200 p-4">
                   <div className="mb-2 flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-slate-800">
-                      {formatPrettyDate(plan.week_start_date)} to{" "}
-                      {formatPrettyDate(plan.week_end_date)}
-                    </p>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
+                        Week {week} · {isoYear}
+                      </p>
+                      <p className="text-sm font-semibold text-slate-800">
+                        {formatPrettyDate(plan.week_start_date)} to{" "}
+                        {formatPrettyDate(plan.week_end_date)}
+                      </p>
+                    </div>
                     <button
                       onClick={() => void deleteWeeklyPlan(plan.id)}
                       className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-100"
@@ -1196,7 +1251,8 @@ export default function Home() {
                     })}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
