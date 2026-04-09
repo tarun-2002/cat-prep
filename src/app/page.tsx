@@ -1,9 +1,13 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { DateRange, DayPicker } from "react-day-picker";
+import "react-day-picker/style.css";
 import type { LucideIcon } from "lucide-react";
 import {
+  Bell,
   BookOpen,
+  CalendarDays,
   ChevronDown,
   ChevronUp,
   CheckCircle2,
@@ -16,6 +20,7 @@ import {
   Sigma,
   UploadCloud,
   UserCircle2,
+  Video,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
@@ -34,6 +39,12 @@ type Topic = {
     title: string;
     completed: boolean;
     latest_submission: { status: SubmissionState } | null;
+    videos: Array<{
+      id: string;
+      label: string;
+      url: string;
+      display_order: number;
+    }>;
   }>;
 };
 
@@ -51,17 +62,59 @@ type ReviewQueueItem = {
   reviews: Array<{ reviewer_id: string; status: string }>;
 };
 
+type WeeklyPlan = {
+  id: string;
+  week_start_date: string;
+  week_end_date: string;
+  items: Array<{
+    subtopic_id: string;
+    subtopics: {
+      id: string;
+      title: string;
+      topic_id: string;
+      topics: { id: string; title: string; section: Section };
+    };
+  }>;
+  total_goals: number;
+  completed_goals: number;
+  remaining_goals: number;
+};
+
+type WeeklyPlanListItem = {
+  id: string;
+  week_start_date: string;
+  week_end_date: string;
+  items: Array<{
+    weekly_plan_id: string;
+    subtopic_id: string;
+    subtopics: {
+      id: string;
+      title: string;
+      topic_id: string;
+      topics: { id: string; title: string; section: Section };
+    };
+  }>;
+};
+
+type PlannerSubtopicOption = {
+  id: string;
+  title: string;
+  topicId: string;
+  topicTitle: string;
+  section: Section;
+};
+
 type ProofForm = {
-  topicQuestionsDone: number;
-  pyqQuestionsDone: number;
+  topicQuestionsDone: string;
+  pyqQuestionsDone: string;
   topicQuestionProofUrls: string[];
   pyqProofUrls: string[];
   shortNotesUrls: string[];
 };
 
 const INITIAL_FORM: ProofForm = {
-  topicQuestionsDone: 0,
-  pyqQuestionsDone: 0,
+  topicQuestionsDone: "",
+  pyqQuestionsDone: "",
   topicQuestionProofUrls: [],
   pyqProofUrls: [],
   shortNotesUrls: [],
@@ -84,6 +137,24 @@ function StatusChip({ status }: { status: SubmissionState | null }) {
   return <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">Pending review</span>;
 }
 
+function formatPrettyDate(dateString: string) {
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
+  const day = date.getDate();
+  const suffix =
+    day % 10 === 1 && day !== 11
+      ? "st"
+      : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+          ? "rd"
+          : "th";
+  const month = date.toLocaleString("en-US", { month: "long" });
+  const year = date.toLocaleString("en-US", { year: "2-digit" });
+  const weekday = date.toLocaleString("en-US", { weekday: "long" });
+  return `${day}${suffix} ${month}'${year} ${weekday}`;
+}
+
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState("");
@@ -103,6 +174,22 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState<Section>("QUANT");
   const [openTopicId, setOpenTopicId] = useState<string | null>(null);
   const [openSubtopicId, setOpenSubtopicId] = useState<string | null>(null);
+  const [isPlannerModalOpen, setIsPlannerModalOpen] = useState(false);
+  const [isAllPlansModalOpen, setIsAllPlansModalOpen] = useState(false);
+  const [isReviewDrawerOpen, setIsReviewDrawerOpen] = useState(false);
+  const [weekStartDate, setWeekStartDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [weekEndDate, setWeekEndDate] = useState<string>(new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10));
+  const [plannerDateRange, setPlannerDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
+  });
+  const [plannerSection, setPlannerSection] = useState<Section>("QUANT");
+  const [plannerTopicId, setPlannerTopicId] = useState<string>("");
+  const [plannerSubtopicId, setPlannerSubtopicId] = useState<string>("");
+  const [selectedPlanSubtopics, setSelectedPlanSubtopics] = useState<Set<string>>(new Set());
+  const [currentWeeklyPlan, setCurrentWeeklyPlan] = useState<WeeklyPlan | null>(null);
+  const [allWeeklyPlans, setAllWeeklyPlans] = useState<WeeklyPlanListItem[]>([]);
+  const [plannedSubtopicIds, setPlannedSubtopicIds] = useState<Set<string>>(new Set());
 
   const sections = useMemo(() => ["QUANT", "DILR", "VARC"] as const, []);
 
@@ -134,20 +221,37 @@ export default function Home() {
     const token = await getAccessToken();
     if (!token) return;
 
-    const [bootstrapRes, reviewRes] = await Promise.all([
+    const [bootstrapRes, reviewRes, weeklyPlanRes, allPlansRes] = await Promise.all([
       fetch("/api/tracker/bootstrap", { headers: { Authorization: `Bearer ${token}` } }),
       fetch("/api/tracker/review-queue", { headers: { Authorization: `Bearer ${token}` } }),
+      fetch("/api/plans/weekly", { headers: { Authorization: `Bearer ${token}` } }),
+      fetch("/api/plans/weekly?all=true", { headers: { Authorization: `Bearer ${token}` } }),
     ]);
     const bootstrapJson = await bootstrapRes.json();
     const reviewJson = await reviewRes.json();
+    const weeklyPlanJson = await weeklyPlanRes.json();
+    const allPlansJson = await allPlansRes.json();
 
     if (!bootstrapRes.ok) return setError(bootstrapJson.error ?? "Failed to load tracker data");
     if (!reviewRes.ok) return setError(reviewJson.error ?? "Failed to load review queue");
+    if (!weeklyPlanRes.ok) return setError(weeklyPlanJson.error ?? "Failed to load weekly plan");
+    if (!allPlansRes.ok) return setError(allPlansJson.error ?? "Failed to load weekly plans");
 
     const loadedTopics = (bootstrapJson.topics ?? []) as Topic[];
     setTopics(loadedTopics);
     setProgress(bootstrapJson.progress);
     setReviewQueue(reviewJson.items ?? []);
+    setCurrentWeeklyPlan(weeklyPlanJson.plan ?? null);
+    setAllWeeklyPlans((allPlansJson.plans ?? []) as WeeklyPlanListItem[]);
+    const usedSubtopicIds = new Set<string>();
+    for (const plan of allPlansJson.plans ?? []) {
+      for (const item of plan.items ?? []) {
+        if (typeof item.subtopic_id === "string") {
+          usedSubtopicIds.add(item.subtopic_id);
+        }
+      }
+    }
+    setPlannedSubtopicIds(usedSubtopicIds);
 
     const forms: Record<string, ProofForm> = {};
     for (const topic of loadedTopics) {
@@ -157,6 +261,111 @@ export default function Home() {
     }
     setProofForms(forms);
   };
+
+  const createWeeklyPlan = async () => {
+    setError(null);
+    setInfo(null);
+    if (selectedPlanSubtopics.size === 0) {
+      setError("Select at least one subtopic for the weekly plan.");
+      return;
+    }
+    if (!plannerDateRange?.from || !plannerDateRange?.to) {
+      setError("Please select start and end date from calendar.");
+      return;
+    }
+
+    const rangeStart = plannerDateRange.from.toISOString().slice(0, 10);
+    const rangeEnd = plannerDateRange.to.toISOString().slice(0, 10);
+    setWeekStartDate(rangeStart);
+    setWeekEndDate(rangeEnd);
+
+    const token = await getAccessToken();
+    const res = await fetch("/api/plans/weekly", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        week_start_date: rangeStart,
+        week_end_date: rangeEnd,
+        subtopic_ids: Array.from(selectedPlanSubtopics),
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      setError(json.error ?? "Failed to create weekly plan");
+      return;
+    }
+
+    setInfo("Weekly plan saved and visible to all users.");
+    setIsPlannerModalOpen(false);
+    setSelectedPlanSubtopics(new Set());
+    await refreshDashboard();
+  };
+
+  const openAllPlansModal = async () => {
+    setError(null);
+    const token = await getAccessToken();
+    const res = await fetch("/api/plans/weekly?all=true", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      setError(json.error ?? "Failed to load all weekly plans");
+      return;
+    }
+    setAllWeeklyPlans((json.plans ?? []) as WeeklyPlanListItem[]);
+    setIsAllPlansModalOpen(true);
+  };
+
+  const allSubtopicOptions: PlannerSubtopicOption[] = topics.flatMap((topic) =>
+    topic.subtopics.map((subtopic) => ({
+      id: subtopic.id,
+      title: subtopic.title,
+      topicId: topic.id,
+      topicTitle: topic.title,
+      section: topic.section,
+    })),
+  );
+  const plannerTopicOptions = topics.filter((topic) => topic.section === plannerSection);
+  const plannerSubtopicOptions = allSubtopicOptions.filter(
+    (subtopic) => subtopic.section === plannerSection,
+  );
+  const plannerFilteredSubtopics = plannerSubtopicOptions.filter(
+    (subtopic) =>
+      (!plannerTopicId || subtopic.topicId === plannerTopicId) &&
+      !plannedSubtopicIds.has(subtopic.id),
+  );
+
+  const addSubtopicToPlan = () => {
+    if (!plannerSubtopicId) {
+      setError("Select a subtopic to add.");
+      return;
+    }
+    setSelectedPlanSubtopics((prev) => {
+      const next = new Set(prev);
+      next.add(plannerSubtopicId);
+      return next;
+    });
+    setPlannerSubtopicId("");
+  };
+
+  const selectedPlanSubtopicRows = allSubtopicOptions.filter((item) =>
+    selectedPlanSubtopics.has(item.id),
+  );
+
+  const groupedPlanItems = (currentWeeklyPlan?.items ?? []).reduce<Record<Section, Array<{ topic: string; subtopic: string }>>>(
+    (acc, item) => {
+      const section = item.subtopics.topics.section;
+      acc[section].push({
+        topic: item.subtopics.topics.title,
+        subtopic: item.subtopics.title,
+      });
+      return acc;
+    },
+    { QUANT: [], DILR: [], VARC: [] },
+  );
 
   const handleSignIn = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -238,8 +447,8 @@ export default function Home() {
       body: JSON.stringify({
         topic_id: topicId,
         subtopic_id: subtopicId,
-        topic_questions_done: form.topicQuestionsDone,
-        pyq_questions_done: form.pyqQuestionsDone,
+        topic_questions_done: Number(form.topicQuestionsDone || 0),
+        pyq_questions_done: Number(form.pyqQuestionsDone || 0),
         topic_question_proof_urls: form.topicQuestionProofUrls,
         pyq_proof_urls: form.pyqProofUrls,
         short_notes_urls: form.shortNotesUrls,
@@ -316,10 +525,24 @@ export default function Home() {
                 <UserCircle2 size={15} /> {user.email}
               </p>
             </div>
-            <button onClick={handleSignOut} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-              <LogOut size={16} />
-              Sign out
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsReviewDrawerOpen(true)}
+                className="relative inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                <Bell size={16} />
+                Notifications
+                {reviewQueue.length > 0 && (
+                  <span className="absolute -right-1 -top-1 rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    {reviewQueue.length}
+                  </span>
+                )}
+              </button>
+              <button onClick={handleSignOut} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                <LogOut size={16} />
+                Sign out
+              </button>
+            </div>
           </div>
         </header>
 
@@ -346,6 +569,106 @@ export default function Home() {
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <CalendarDays size={18} className="text-indigo-600" />
+            <h2 className="text-xl font-semibold text-slate-900">Weekly Planner</h2>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  setIsPlannerModalOpen(true);
+                  setError(null);
+                  setInfo(null);
+                  setPlannerDateRange({
+                    from: new Date(),
+                    to: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
+                  });
+                }}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              >
+                Open Weekly Planner
+              </button>
+              <button
+                onClick={() => void openAllPlansModal()}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                View All Weekly Plans
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-lg border border-slate-200 p-4">
+              <p className="text-sm font-medium text-slate-800">Current week goal</p>
+              {!currentWeeklyPlan ? (
+                <p className="mt-2 text-sm text-slate-500">No active weekly plan for today.</p>
+              ) : (
+                <>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {formatPrettyDate(currentWeeklyPlan.week_start_date)} to{" "}
+                    {formatPrettyDate(currentWeeklyPlan.week_end_date)}
+                  </p>
+                  <div className="mt-3 h-2 w-full rounded-full bg-slate-100">
+                    <div
+                      className="h-2 rounded-full bg-indigo-600"
+                      style={{
+                        width: `${currentWeeklyPlan.total_goals > 0
+                          ? Math.round(
+                            (currentWeeklyPlan.completed_goals / currentWeeklyPlan.total_goals) *
+                            100,
+                          )
+                          : 0
+                          }%`,
+                      }}
+                    />
+                  </div>
+                  <p className="mt-2 text-sm text-slate-700">
+                    Completed: {currentWeeklyPlan.completed_goals} /{" "}
+                    {currentWeeklyPlan.total_goals} | Remaining:{" "}
+                    {currentWeeklyPlan.remaining_goals}
+                  </p>
+                </>
+              )}
+            </div>
+
+            <div className="rounded-lg border border-slate-200 p-4">
+              <p className="text-sm font-medium text-slate-800">
+                Week goals by section
+                {currentWeeklyPlan
+                  ? ` (${formatPrettyDate(currentWeeklyPlan.week_start_date)} to ${formatPrettyDate(
+                    currentWeeklyPlan.week_end_date,
+                  )})`
+                  : ""}
+              </p>
+              {!currentWeeklyPlan || currentWeeklyPlan.items.length === 0 ? (
+                <p className="mt-2 text-sm text-slate-500">No goals added for this week yet.</p>
+              ) : (
+                <div className="mt-2 grid gap-3 md:grid-cols-3">
+                  {sections.map((section) => (
+                    <div key={section} className="rounded-md border border-slate-200 bg-slate-50 p-3">
+                      <p className="mb-1 text-sm font-semibold text-slate-700">{section}</p>
+                      {groupedPlanItems[section].length === 0 ? (
+                        <p className="text-xs text-slate-500">No goals</p>
+                      ) : (
+                        <ul className="space-y-1">
+                          {groupedPlanItems[section].map((row, idx) => (
+                            <li key={`${section}-${idx}`} className="text-xs text-slate-600">
+                              <span className="font-medium">{row.topic}:</span> {row.subtopic}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
           <div className="mb-4 flex flex-wrap gap-2">
             {sections.map((section) => {
               const meta = SECTION_META[section];
@@ -360,8 +683,8 @@ export default function Home() {
                     setOpenTopicId(null);
                   }}
                   className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition ${active
-                      ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                     }`}
                 >
                   <Icon size={15} />
@@ -447,28 +770,56 @@ export default function Home() {
 
                             {isSubtopicOpen && !subtopic.completed && (
                               <div className="mt-3 space-y-3 border-t border-slate-200 pt-3">
+                                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                                  <p className="mb-2 inline-flex items-center gap-1 text-sm font-medium text-slate-700">
+                                    <Video size={14} />
+                                    Video lessons
+                                  </p>
+                                  {subtopic.videos.length === 0 ? (
+                                    <p className="text-xs text-slate-500">No videos added for this subtopic yet.</p>
+                                  ) : (
+                                    <div className="grid gap-1">
+                                      {subtopic.videos.map((videoItem) => (
+                                        <a
+                                          key={videoItem.id}
+                                          href={videoItem.url}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="inline-flex w-full items-center justify-between gap-2 rounded-md border border-indigo-100 bg-indigo-50 px-3 py-2 text-sm text-indigo-700 hover:bg-indigo-100"
+                                        >
+                                          <span className="inline-flex items-center gap-1">
+                                            <Link2 size={13} />
+                                            {videoItem.label}
+                                          </span>
+                                          <span className="text-xs font-medium">Open</span>
+                                        </a>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+
                                 <div className="grid gap-3 md:grid-cols-2">
                                   <label className="text-sm text-slate-600">
                                     Topic questions done
-                                    <input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-indigo-500 focus:ring-2" type="number" min={0} value={form.topicQuestionsDone} onChange={(e) => setProofForms((prev) => ({ ...prev, [subtopic.id]: { ...form, topicQuestionsDone: Number(e.target.value) } }))} />
+                                    <input className="no-spinner mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-indigo-500 focus:ring-2" type="number" min={0} inputMode="numeric" placeholder="Enter count" value={form.topicQuestionsDone} onChange={(e) => setProofForms((prev) => ({ ...prev, [subtopic.id]: { ...form, topicQuestionsDone: e.target.value.replace(/[^\d]/g, "") } }))} />
                                   </label>
                                   <label className="text-sm text-slate-600">
                                     Previous year questions done
-                                    <input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-indigo-500 focus:ring-2" type="number" min={0} value={form.pyqQuestionsDone} onChange={(e) => setProofForms((prev) => ({ ...prev, [subtopic.id]: { ...form, pyqQuestionsDone: Number(e.target.value) } }))} />
+                                    <input className="no-spinner mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-indigo-500 focus:ring-2" type="number" min={0} inputMode="numeric" placeholder="Enter count" value={form.pyqQuestionsDone} onChange={(e) => setProofForms((prev) => ({ ...prev, [subtopic.id]: { ...form, pyqQuestionsDone: e.target.value.replace(/[^\d]/g, "") } }))} />
                                   </label>
                                 </div>
 
                                 <div className="mt-3 grid gap-3 md:grid-cols-3">
                                   {[
-                                    { label: "Topic proof image", key: "topicQuestionProofUrls" as const, count: form.topicQuestionProofUrls.length },
-                                    { label: "PYQ proof image", key: "pyqProofUrls" as const, count: form.pyqProofUrls.length },
-                                    { label: "Short notes image", key: "shortNotesUrls" as const, count: form.shortNotesUrls.length },
+                                    { label: "Topic Questions Proof", key: "topicQuestionProofUrls" as const, count: form.topicQuestionProofUrls.length },
+                                    { label: "PYQ Proof", key: "pyqProofUrls" as const, count: form.pyqProofUrls.length },
+                                    { label: "Short Notes Proof", key: "shortNotesUrls" as const, count: form.shortNotesUrls.length },
                                   ].map((upload) => (
                                     <label key={upload.key} className="rounded-lg border border-dashed border-slate-300 bg-white p-3 text-sm text-slate-600">
                                       <span className="mb-2 inline-flex items-center gap-1 text-slate-700">
                                         <FileImage size={14} /> {upload.label}
                                       </span>
-                                      <input className="mt-1 block w-full text-xs" type="file" accept="image/*" onChange={(e) => void onUpload(subtopic.id, upload.key, e.target.files?.[0] ?? null)} />
+                                      <input className="mt-2 block w-full text-xs file:mr-3 file:rounded-md file:border-0 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white hover:file:bg-indigo-700" type="file" accept="image/*" onChange={(e) => void onUpload(subtopic.id, upload.key, e.target.files?.[0] ?? null)} />
                                       <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs">
                                         <UploadCloud size={12} />
                                         Uploaded: {upload.count}
@@ -494,49 +845,328 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-          <h2 className="mb-1 text-xl font-semibold text-slate-900">Review Queue</h2>
-          <p className="mb-4 text-sm text-slate-500">Approve or reject submissions from other users.</p>
-          <div className="grid gap-4">
-            {reviewQueue.length === 0 && <p className="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-500">No pending reviews right now.</p>}
-            {reviewQueue.map((item) => (
-              <article key={item.id} className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-slate-900">
-                    {item.topics.section} - {item.topics.title}
-                    {item.subtopics?.title ? ` - ${item.subtopics.title}` : ""}
-                  </h3>
-                  <span className="rounded-full bg-white px-2 py-1 text-xs text-slate-600">{item.reviews.length} review(s)</span>
-                </div>
-                <p className="text-sm text-slate-600">Submitted by: <span className="font-medium">{item.user_id}</span></p>
-                <p className="text-sm text-slate-600">Topic questions: <span className="font-medium">{item.topic_questions_done}</span></p>
-                <p className="text-sm text-slate-600">PYQ questions: <span className="font-medium">{item.pyq_questions_done}</span></p>
-
-                <div className="mt-3">
-                  <p className="mb-1 text-sm font-medium text-slate-700">Attached proofs</p>
-                  {[...item.topic_question_proof_urls, ...item.pyq_proof_urls, ...item.short_notes_urls].map((url, index) => (
-                    <a key={`${item.id}-${index}`} className="block text-sm text-indigo-600 hover:underline" href={url} target="_blank" rel="noreferrer">
-                      {url}
-                    </a>
-                  ))}
-                </div>
-
-                <div className="mt-4 flex gap-2">
-                  <button className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700" onClick={() => void reviewSubmission(item.id, true)}>
-                    Approve
-                  </button>
-                  <button className="rounded-lg bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-700" onClick={() => void reviewSubmission(item.id, false)}>
-                    Reject
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
         {error && <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
         {info && <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{info}</p>}
       </div>
+
+      {isReviewDrawerOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40" onClick={() => setIsReviewDrawerOpen(false)}>
+          <aside
+            className="absolute right-0 top-0 h-full w-full max-w-xl overflow-auto bg-white p-5 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-slate-900">Review Queue</h2>
+              <button
+                onClick={() => setIsReviewDrawerOpen(false)}
+                className="rounded-md border border-slate-300 px-3 py-1 text-sm text-slate-600 hover:bg-slate-50"
+              >
+                Close
+              </button>
+            </div>
+            <p className="mb-4 text-sm text-slate-500">Approve or reject submissions from other users.</p>
+            <div className="grid gap-4">
+              {reviewQueue.length === 0 && (
+                <p className="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                  No pending reviews right now.
+                </p>
+              )}
+              {reviewQueue.map((item) => (
+                <article key={item.id} className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-base font-semibold text-slate-900">
+                      {item.topics.section} - {item.topics.title}
+                      {item.subtopics?.title ? ` - ${item.subtopics.title}` : ""}
+                    </h3>
+                    <span className="rounded-full bg-white px-2 py-1 text-xs text-slate-600">
+                      {item.reviews.length} review(s)
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-600">
+                    Submitted by: <span className="font-medium">{item.user_id}</span>
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    Topic questions: <span className="font-medium">{item.topic_questions_done}</span>
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    PYQ questions: <span className="font-medium">{item.pyq_questions_done}</span>
+                  </p>
+
+                  <div className="mt-3">
+                    <p className="mb-1 text-sm font-medium text-slate-700">Attached proofs</p>
+                    {[...item.topic_question_proof_urls, ...item.pyq_proof_urls, ...item.short_notes_urls].map(
+                      (url, index) => (
+                        <a
+                          key={`${item.id}-${index}`}
+                          className="block text-sm text-indigo-600 hover:underline"
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {url}
+                        </a>
+                      ),
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+                      onClick={() => void reviewSubmission(item.id, true)}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className="rounded-lg bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-700"
+                      onClick={() => void reviewSubmission(item.id, false)}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {isPlannerModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-3xl rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">Create Weekly Plan</h3>
+              <button
+                onClick={() => setIsPlannerModalOpen(false)}
+                className="rounded-md border border-slate-300 px-3 py-1 text-sm text-slate-600 hover:bg-slate-50"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid gap-3">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="mb-2 text-sm font-medium text-slate-700">Select start and end date</p>
+                <DayPicker
+                  mode="range"
+                  selected={plannerDateRange}
+                  onSelect={(range) => {
+                    setPlannerDateRange(range);
+                    if (range?.from) setWeekStartDate(range.from.toISOString().slice(0, 10));
+                    if (range?.to) setWeekEndDate(range.to.toISOString().slice(0, 10));
+                  }}
+                  numberOfMonths={1}
+                  defaultMonth={plannerDateRange?.from}
+                  showOutsideDays
+                  fixedWeeks
+                  className="mx-auto w-fit rounded-xl border border-slate-200 bg-white p-2 text-slate-800"
+                  classNames={{
+                    months: "flex flex-col",
+                    month: "space-y-2",
+                    caption: "relative flex items-center justify-center py-1",
+                    caption_label: "text-sm font-semibold text-slate-800",
+                    nav: "absolute inset-x-0 top-1 flex items-center justify-end px-1",
+                    nav_button:
+                      "h-6 w-6 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-100",
+                    table: "w-full border-collapse",
+                    head_row: "flex",
+                    head_cell:
+                      "m-0.5 w-8 text-[10px] font-semibold uppercase tracking-wide text-slate-400",
+                    row: "mt-1 flex w-full",
+                    cell: "relative m-0.5 h-8 w-8 p-0 text-center text-xs",
+                    day: "h-8 w-8 rounded-md text-slate-700 hover:bg-indigo-50 hover:text-indigo-700",
+                    day_selected:
+                      "bg-indigo-600 text-white hover:bg-indigo-600 hover:text-white",
+                    day_range_start:
+                      "bg-indigo-600 text-white rounded-l-md rounded-r-none hover:bg-indigo-600",
+                    day_range_end:
+                      "bg-indigo-600 text-white rounded-r-md rounded-l-none hover:bg-indigo-600",
+                    day_range_middle:
+                      "bg-indigo-100 text-indigo-700 rounded-none hover:bg-indigo-100",
+                    day_today: "border border-indigo-300 text-indigo-700",
+                    day_outside: "text-slate-300",
+                    day_disabled: "text-slate-300",
+                  }}
+                />
+                <p className="mt-2 text-xs text-slate-500">
+                  {plannerDateRange?.from
+                    ? `Start: ${formatPrettyDate(weekStartDate)}`
+                    : "Select a start date"}{" "}
+                  {plannerDateRange?.to ? `| End: ${formatPrettyDate(weekEndDate)}` : ""}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              <label className="text-sm text-slate-600">
+                Section
+                <select
+                  value={plannerSection}
+                  onChange={(e) => {
+                    const next = e.target.value as Section;
+                    setPlannerSection(next);
+                    setPlannerTopicId("");
+                    setPlannerSubtopicId("");
+                  }}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900"
+                >
+                  {sections.map((section) => (
+                    <option key={section} value={section}>
+                      {section}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-sm text-slate-600">
+                Topic
+                <select
+                  value={plannerTopicId}
+                  onChange={(e) => {
+                    setPlannerTopicId(e.target.value);
+                    setPlannerSubtopicId("");
+                  }}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900"
+                >
+                  <option value="">All topics</option>
+                  {plannerTopicOptions.map((topic) => (
+                    <option key={topic.id} value={topic.id}>
+                      {topic.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-sm text-slate-600">
+                Subtopic
+                <select
+                  value={plannerSubtopicId}
+                  onChange={(e) => setPlannerSubtopicId(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900"
+                >
+                  <option value="">Select subtopic</option>
+                  {plannerFilteredSubtopics.map((subtopic) => (
+                    <option key={subtopic.id} value={subtopic.id}>
+                      {subtopic.topicTitle} - {subtopic.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-3">
+              <button
+                onClick={addSubtopicToPlan}
+                className="rounded-lg border border-indigo-300 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100"
+              >
+                Add to selected week's goal!
+              </button>
+            </div>
+
+            <div className="mt-4 rounded-lg border border-slate-200 p-3">
+              <p className="mb-2 text-sm font-medium text-slate-800">
+                Selected goals ({selectedPlanSubtopicRows.length})
+              </p>
+              {selectedPlanSubtopicRows.length === 0 ? (
+                <p className="text-sm text-slate-500">No subtopics selected yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {selectedPlanSubtopicRows.map((row) => (
+                    <div
+                      key={row.id}
+                      className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-sm text-slate-800"
+                    >
+                      <span>
+                        <span className="font-medium">{row.section}</span> - {row.topicTitle} -{" "}
+                        {row.title}
+                      </span>
+                      <button
+                        onClick={() =>
+                          setSelectedPlanSubtopics((prev) => {
+                            const next = new Set(prev);
+                            next.delete(row.id);
+                            return next;
+                          })
+                        }
+                        className="text-xs text-rose-600 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                onClick={() => setIsPlannerModalOpen(false)}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => void createWeeklyPlan()}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              >
+                Save Weekly Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isAllPlansModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-4xl rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">All Weekly Plans</h3>
+              <button
+                onClick={() => setIsAllPlansModalOpen(false)}
+                className="rounded-md border border-slate-300 px-3 py-1 text-sm text-slate-600 hover:bg-slate-50"
+              >
+                Close
+              </button>
+            </div>
+            <div className="max-h-[70vh] space-y-3 overflow-auto pr-1">
+              {allWeeklyPlans.length === 0 && (
+                <p className="text-sm text-slate-500">No weekly plans created yet.</p>
+              )}
+              {allWeeklyPlans.map((plan) => (
+                <div key={plan.id} className="rounded-lg border border-slate-200 p-4">
+                  <p className="text-sm font-semibold text-slate-800">
+                    {formatPrettyDate(plan.week_start_date)} to{" "}
+                    {formatPrettyDate(plan.week_end_date)}
+                  </p>
+                  <div className="mt-2 grid gap-3 md:grid-cols-3">
+                    {sections.map((section) => {
+                      const rows = plan.items.filter(
+                        (item) => item.subtopics.topics.section === section,
+                      );
+                      return (
+                        <div key={`${plan.id}-${section}`} className="rounded-md bg-slate-50 p-2">
+                          <p className="text-xs font-semibold text-slate-700">{section}</p>
+                          {rows.length === 0 ? (
+                            <p className="text-xs text-slate-500">No goals</p>
+                          ) : (
+                            <ul className="mt-1 space-y-1">
+                              {rows.map((item, idx) => (
+                                <li key={`${item.subtopic_id}-${idx}`} className="text-xs text-slate-600">
+                                  <span className="font-medium">{item.subtopics.topics.title}:</span>{" "}
+                                  {item.subtopics.title}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

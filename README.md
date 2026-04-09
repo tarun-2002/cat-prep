@@ -15,6 +15,10 @@ Competitive exam preparation tracker built with Next.js and Supabase Auth.
   - user submits proof
   - another user reviews
   - progress increases after first approval
+- Weekly planning:
+  - create a week plan with date + selected subtopics
+  - plan is visible to all users
+  - dashboard shows weekly completed vs remaining goals
 
 ## Environment Variables
 
@@ -36,6 +40,11 @@ This creates:
 - `topics`
 - `topic_submissions`
 - `submission_reviews`
+
+Also run:
+- `supabase-subtopics-migration.sql`
+- `supabase-videos-migration.sql`
+- `supabase-weekly-plans-migration.sql`
 
 ## Run
 

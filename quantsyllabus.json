@@ -1,0 +1,958 @@
+{
+  "Arithmetic": {
+    "Speed Math": [
+      {
+        "label": "SM 1",
+        "url": "https://www.youtube.com/watch?v=VT9-jeEmlJ8"
+      },
+      {
+        "label": "SM 2",
+        "url": "https://www.youtube.com/watch?v=45rr2MJmXfA"
+      },
+      {
+        "label": "SM 3",
+        "url": "https://www.youtube.com/watch?v=sMiFeodSLPU"
+      },
+      {
+        "label": "SM 4",
+        "url": "https://www.youtube.com/watch?v=y6IWvihLWws"
+      },
+      {
+        "label": "SM 5",
+        "url": "https://www.youtube.com/watch?v=CikoluNIjFY"
+      },
+      {
+        "label": "SM 6",
+        "url": "https://www.youtube.com/watch?v=H8ItErX0044"
+      }
+    ],
+    "Averages": [
+      {
+        "label": "AVG 1",
+        "url": "https://www.youtube.com/watch?v=TBhanaOLNvc"
+      },
+      {
+        "label": "AVG 2",
+        "url": "https://www.youtube.com/watch?v=q-ZUkah-xys"
+      },
+      {
+        "label": "AVG 3",
+        "url": "https://www.youtube.com/watch?v=lxCGzzUZBj8"
+      },
+      {
+        "label": "AVG 4",
+        "url": "https://www.youtube.com/watch?v=i3o8REcdEXQ"
+      }
+    ],
+    "Alligation & Mixtures": [
+      {
+        "label": "AM 1",
+        "url": "https://www.youtube.com/watch?v=3LmRyBpIhgQ"
+      },
+      {
+        "label": "AM 2",
+        "url": "https://www.youtube.com/watch?v=RVF9kKdJJE8"
+      },
+      {
+        "label": "AM 3",
+        "url": "https://www.youtube.com/watch?v=qQcGkxuf4ws"
+      },
+      {
+        "label": "AM 4",
+        "url": "https://www.youtube.com/watch?v=Y5OkBhdVDIk"
+      },
+      {
+        "label": "AM 5",
+        "url": "https://www.youtube.com/watch?v=1jONQi6zFcw"
+      },
+      {
+        "label": "AM 6",
+        "url": "https://www.youtube.com/watch?v=cCE1_cKXlsk"
+      }
+    ],
+    "Ratio": [
+      {
+        "label": "R1",
+        "url": "https://www.youtube.com/watch?v=ns_yVxRFmZw"
+      },
+      {
+        "label": "R2",
+        "url": "https://www.youtube.com/watch?v=pCBYFUpDduw"
+      },
+      {
+        "label": "R3",
+        "url": "https://www.youtube.com/watch?v=eruwLy2vGV4"
+      },
+      {
+        "label": "R4",
+        "url": "https://www.youtube.com/watch?v=lyU93VH81s8"
+      },
+      {
+        "label": "R5",
+        "url": "https://www.youtube.com/watch?v=a6VLSdHMjEk"
+      },
+      {
+        "label": "R6",
+        "url": "https://www.youtube.com/watch?v=dRrLKUiuoHc"
+      }
+    ],
+    "Proportion, Variation": [
+      {
+        "label": "PV 1",
+        "url": "https://www.youtube.com/watch?v=nkCvpSojMhI"
+      },
+      {
+        "label": "PV 2",
+        "url": "https://www.youtube.com/watch?v=yH3JaXo7RQA"
+      }
+    ],
+    "Percentages, Profit & Loss": [
+      {
+        "label": "PPL 1",
+        "url": "https://www.youtube.com/watch?v=x-k8iSNr85g"
+      },
+      {
+        "label": "PPL 2",
+        "url": "https://www.youtube.com/watch?v=lzI_bpPpezE"
+      },
+      {
+        "label": "PPL 3",
+        "url": "https://www.youtube.com/watch?v=3ox1DwbOOx0"
+      },
+      {
+        "label": "PPL 4",
+        "url": "https://www.youtube.com/watch?v=bigCbKeUPO4"
+      },
+      {
+        "label": "PPL 5",
+        "url": "https://www.youtube.com/watch?v=3Q6V7qVGReo"
+      },
+      {
+        "label": "PPL 6",
+        "url": "https://www.youtube.com/watch?v=xDU1mvVga_o"
+      },
+      {
+        "label": "PPL 7",
+        "url": "https://www.youtube.com/watch?v=czMjyZAy6Io"
+      },
+      {
+        "label": "PPL 8",
+        "url": "https://www.youtube.com/watch?v=QPk0yLakPQE"
+      }
+    ],
+    "Simple & Compund Interest": [
+      {
+        "label": "SCI 1",
+        "url": "https://www.youtube.com/watch?v=hvikOiSu_D4"
+      },
+      {
+        "label": "SCI 2",
+        "url": "https://www.youtube.com/watch?v=TG3M3QFyY0k"
+      },
+      {
+        "label": "SCI 3",
+        "url": "https://www.youtube.com/watch?v=CUy55eQjeqw"
+      },
+      {
+        "label": "SCI 4",
+        "url": "https://www.youtube.com/watch?v=h3kqTD6hwp8"
+      },
+      {
+        "label": "SCI 5",
+        "url": "https://www.youtube.com/watch?v=g0dQhbyZdeo"
+      },
+      {
+        "label": "SCI 6",
+        "url": "https://www.youtube.com/watch?v=NPvRXZ2-KwE"
+      }
+    ],
+    "Time & Work": [
+      {
+        "label": "TW 1",
+        "url": "https://www.youtube.com/watch?v=oApzHGJNx38"
+      },
+      {
+        "label": "TW 2",
+        "url": "https://www.youtube.com/watch?v=6IbA-nSj28g"
+      },
+      {
+        "label": "TW 3",
+        "url": "https://www.youtube.com/watch?v=MJIlrpc2oKc"
+      }
+    ],
+    "Time, Speed & Distance": [
+      {
+        "label": "TSD 1",
+        "url": "https://www.youtube.com/watch?v=CKiP208avbc"
+      },
+      {
+        "label": "TSD 2",
+        "url": "https://www.youtube.com/watch?v=PQvBSkJDF_E"
+      },
+      {
+        "label": "TSD 3",
+        "url": "https://www.youtube.com/watch?v=tLsP7smddvQ"
+      },
+      {
+        "label": "TSD 4",
+        "url": "https://www.youtube.com/watch?v=5EzNLs_jExs"
+      },
+      {
+        "label": "TSD 5",
+        "url": "https://www.youtube.com/watch?v=D6Xrdj_Eoj0"
+      },
+      {
+        "label": "TSD 6",
+        "url": "https://www.youtube.com/watch?v=PKBj39PP8DA"
+      },
+      {
+        "label": "TSD 7",
+        "url": "https://www.youtube.com/watch?v=yzLtv86sWgI"
+      },
+      {
+        "label": "TSD 8",
+        "url": "https://www.youtube.com/watch?v=RHflaojKVlI"
+      }
+    ],
+    "Boats & Streams": [
+      {
+        "label": "BS 1",
+        "url": "https://www.youtube.com/watch?v=vx3DfHuuY6Y"
+      },
+      {
+        "label": "BS 2",
+        "url": "https://www.youtube.com/watch?v=QEtURAyIdRY"
+      }
+    ],
+    "Relative Speed": [
+      {
+        "label": "RS 1",
+        "url": "https://www.youtube.com/watch?v=pRFl8NnqID8"
+      },
+      {
+        "label": "RS 2",
+        "url": "https://www.youtube.com/watch?v=pRFl8NnqID8"
+      },
+      {
+        "label": "RS 3",
+        "url": "https://www.youtube.com/watch?v=fniDbYcNYaI"
+      },
+      {
+        "label": "RS 4",
+        "url": "https://www.youtube.com/watch?v=tnZ6zfCHmAc"
+      },
+      {
+        "label": "RS 5",
+        "url": "https://www.youtube.com/watch?v=cWKD8HHunkM"
+      }
+    ],
+    "Linear Tracks": [
+      {
+        "label": "LT 1",
+        "url": "https://www.youtube.com/watch?v=nSctNv6Q3nA"
+      },
+      {
+        "label": "LT 2",
+        "url": "https://www.youtube.com/watch?v=rhqjhvFEmAo"
+      },
+      {
+        "label": "LT 3",
+        "url": "https://www.youtube.com/watch?v=XtgtOReqpng"
+      }
+    ],
+    "Circular Tracks": [
+      {
+        "label": "CT 1",
+        "url": "https://www.youtube.com/watch?v=rdleefuXHQk"
+      },
+      {
+        "label": "CT 2",
+        "url": "https://www.youtube.com/watch?v=hkNVVMX06FE"
+      },
+      {
+        "label": "CT 3",
+        "url": "https://www.youtube.com/watch?v=7-MKc9p6AwU"
+      }
+    ],
+    "Linear Races": [
+      {
+        "label": "LR 1",
+        "url": "https://www.youtube.com/watch?v=UMJ4X1LwYxQ"
+      },
+      {
+        "label": "LR 2",
+        "url": "https://www.youtube.com/watch?v=s9tyhivTaQM"
+      }
+    ],
+    "Clocks": [
+      {
+        "label": "C1",
+        "url": "https://www.youtube.com/watch?v=Rqj9wEc2SfA"
+      }
+    ]
+  },
+  "Algebra & Modern Math": {
+    "Simple Equations": [
+      {
+        "label": "SE 1",
+        "url": "https://www.youtube.com/watch?v=W6MKuAnB0h4"
+      },
+      {
+        "label": "SE 2",
+        "url": "https://www.youtube.com/watch?v=P-emknCdeZE"
+      },
+      {
+        "label": "SE 3",
+        "url": "https://www.youtube.com/watch?v=vrtKzaspVjs"
+      },
+      {
+        "label": "SE 4",
+        "url": "https://www.youtube.com/watch?v=hlEjsEVLkbg"
+      },
+      {
+        "label": "SE 5",
+        "url": "https://www.youtube.com/watch?v=9foBHml4Ls0"
+      },
+      {
+        "label": "SE 6",
+        "url": "https://www.youtube.com/watch?v=UkhgxUqT9qE"
+      }
+    ],
+    "Quadratic Equations": [
+      {
+        "label": "QE 1",
+        "url": "https://www.youtube.com/watch?v=rk64bqehuto"
+      },
+      {
+        "label": "QE 2",
+        "url": "https://www.youtube.com/watch?v=X3c60CCB18U"
+      },
+      {
+        "label": "QE 3",
+        "url": "https://www.youtube.com/watch?v=27OVCl0b0nQ"
+      }
+    ],
+    "Cubic Equations": [
+      {
+        "label": "CE 1",
+        "url": "https://www.youtube.com/watch?v=NDe4t_eO_mE"
+      },
+      {
+        "label": "CE 2",
+        "url": "https://www.youtube.com/watch?v=nYJpeFaon9Y"
+      },
+      {
+        "label": "CE 3",
+        "url": "https://www.youtube.com/watch?v=vG-Z3bagJek"
+      }
+    ],
+    "Inequalities": [
+      {
+        "label": "IE 1",
+        "url": "https://www.youtube.com/watch?v=zIrr1lkvyBY"
+      },
+      {
+        "label": "IE 2",
+        "url": "https://www.youtube.com/watch?v=q6FeaM_18Pk"
+      },
+      {
+        "label": "IE 3",
+        "url": "https://www.youtube.com/watch?v=lY11kL2EREk"
+      },
+      {
+        "label": "IE 4",
+        "url": "https://www.youtube.com/watch?v=joZU568s8T4"
+      },
+      {
+        "label": "IE 5",
+        "url": "https://www.youtube.com/watch?v=TMOq7m_OKUw"
+      },
+      {
+        "label": "IE 6",
+        "url": "https://www.youtube.com/watch?v=EDLqKDO4ruY"
+      },
+      {
+        "label": "IE 7",
+        "url": "https://www.youtube.com/watch?v=gxO5nVZFO4I"
+      },
+      {
+        "label": "IE 8",
+        "url": "https://www.youtube.com/watch?v=0Q1Lz5z3HeM"
+      }
+    ],
+    "Advance Algebra": [
+      {
+        "label": "AA 1",
+        "url": "https://www.youtube.com/watch?v=PcORsQLuja8"
+      },
+      {
+        "label": "AA 2",
+        "url": "https://www.youtube.com/watch?v=u6gP3BHbU1c"
+      },
+      {
+        "label": "AA 3",
+        "url": "https://www.youtube.com/watch?v=TpTIG0saIrY"
+      },
+      {
+        "label": "AA 4",
+        "url": "https://www.youtube.com/watch?v=eW6vBToDaYE"
+      },
+      {
+        "label": "AA 5",
+        "url": "https://www.youtube.com/watch?v=0Hs-4Dc5SgQ"
+      },
+      {
+        "label": "AA 6",
+        "url": "https://www.youtube.com/watch?v=gNOb9Q61f-w"
+      },
+      {
+        "label": "AA 7",
+        "url": "https://www.youtube.com/watch?v=r6JYnOTv6hs"
+      }
+    ],
+    "Arithmetic Progression": [
+      {
+        "label": "AP 1",
+        "url": "https://www.youtube.com/watch?v=wSbjXsULtrI"
+      },
+      {
+        "label": "AP 2",
+        "url": "https://www.youtube.com/watch?v=V69nA_XihxI"
+      }
+    ],
+    "Graphs": [
+      {
+        "label": "G 1",
+        "url": "https://www.youtube.com/watch?v=BLXcly1Dvu4"
+      },
+      {
+        "label": "G 2",
+        "url": "https://www.youtube.com/watch?v=kOlcYqzYMQY"
+      }
+    ],
+    "Indices Surds": [
+      {
+        "label": "IS 1",
+        "url": "https://www.youtube.com/watch?v=zgxx5FpvCus"
+      },
+      {
+        "label": "IS 2",
+        "url": "https://www.youtube.com/watch?v=GdaRjTRJ_rg"
+      },
+      {
+        "label": "IS 3",
+        "url": "https://www.youtube.com/watch?v=AhpAzlI-WQA"
+      },
+      {
+        "label": "IS 4",
+        "url": "https://www.youtube.com/watch?v=zOGkoKJkgRw"
+      },
+      {
+        "label": "IS 5",
+        "url": "https://www.youtube.com/watch?v=bzrqhfqYOgY"
+      }
+    ],
+    "Sequence & Series": [
+      {
+        "label": "SS 1",
+        "url": "https://www.youtube.com/watch?v=XrbkOHqFQqA"
+      },
+      {
+        "label": "SS 2",
+        "url": "https://www.youtube.com/watch?v=FKFwQG0TvKA"
+      }
+    ],
+    "Logarithms": [
+      {
+        "label": "L 1",
+        "url": "https://www.youtube.com/watch?v=K6Jk3uEkIMA"
+      },
+      {
+        "label": "L 2",
+        "url": "https://youtu.be/SzseQAYENMc"
+      }
+    ],
+    "Functions": [
+      {
+        "label": "F 1",
+        "url": "https://www.youtube.com/watch?v=6FEnbG2Ux5o"
+      },
+      {
+        "label": "F 2",
+        "url": "https://www.youtube.com/watch?v=EWB1NaL4N4U"
+      },
+      {
+        "label": "F 3",
+        "url": "https://www.youtube.com/watch?v=6ca_RfR4A8Y"
+      },
+      {
+        "label": "F 4",
+        "url": "https://www.youtube.com/watch?v=LChCPuxO83s"
+      },
+      {
+        "label": "F 5",
+        "url": "https://www.youtube.com/watch?v=-tgziXRn-1k"
+      },
+      {
+        "label": "F 6",
+        "url": "https://www.youtube.com/watch?v=J1KIc8IEidw"
+      },
+      {
+        "label": "F 7",
+        "url": "https://www.youtube.com/watch?v=nHOh5GHiw30"
+      },
+      {
+        "label": "F 8",
+        "url": "https://www.youtube.com/watch?v=tK3U9u0jHJE"
+      },
+      {
+        "label": "F 9",
+        "url": "https://www.youtube.com/watch?v=cK1IejfD0I8"
+      },
+      {
+        "label": "F 10",
+        "url": "https://www.youtube.com/watch?v=rSbAIaV34Yg"
+      }
+    ],
+    "Statistics": [
+      {
+        "label": "S 1",
+        "url": "https://www.youtube.com/watch?v=VlYCQXSHutM"
+      },
+      {
+        "label": "S 2",
+        "url": "https://www.youtube.com/watch?v=zWI2Nv5_7iE"
+      },
+      {
+        "label": "S 3",
+        "url": "https://www.youtube.com/watch?v=FhsHkHjE0v4"
+      }
+    ],
+    "Probability": [
+      {
+        "label": "P1",
+        "url": "https://www.youtube.com/watch?v=b6hmLsjbA7E"
+      },
+      {
+        "label": "P2",
+        "url": "https://www.youtube.com/watch?v=1KYf9l1wGTY"
+      }
+    ],
+    "Permutation & Combination": [
+      {
+        "label": "PC 1",
+        "url": "https://www.youtube.com/watch?v=8kvqSY1-W5Y"
+      },
+      {
+        "label": "PC 2",
+        "url": "https://www.youtube.com/watch?v=hdp7hrc5Ams"
+      },
+      {
+        "label": "PC 3",
+        "url": "https://www.youtube.com/watch?v=fx30pQ4Qd_g"
+      },
+      {
+        "label": "PC 4",
+        "url": "https://www.youtube.com/watch?v=xl62EuAtYTc"
+      },
+      {
+        "label": "PC 5",
+        "url": "https://www.youtube.com/watch?v=ngV_itTBZr8"
+      },
+      {
+        "label": "PC 6",
+        "url": "https://www.youtube.com/watch?v=Nt7yqNocfg4"
+      },
+      {
+        "label": "PC 7",
+        "url": "https://www.youtube.com/watch?v=jnEtA2CxPpA"
+      },
+      {
+        "label": "PC 8",
+        "url": "https://www.youtube.com/watch?v=kHR2TecGao8"
+      },
+      {
+        "label": "PC 10",
+        "url": "https://www.youtube.com/watch?v=8xtquD6djG8"
+      },
+      {
+        "label": "PC 11",
+        "url": "https://www.youtube.com/watch?v=jzE_pUpgN6k"
+      },
+      {
+        "label": "PC 12",
+        "url": "https://www.youtube.com/watch?v=_lQk4wQ0wQM"
+      },
+      {
+        "label": "PC 13.1",
+        "url": "https://www.youtube.com/watch?v=3ijB7Q9A8XI"
+      },
+      {
+        "label": "PC 13.2",
+        "url": "https://www.youtube.com/watch?v=QjH6rkTCehk"
+      },
+      {
+        "label": "PC 14",
+        "url": "https://www.youtube.com/watch?v=R179XB7ePbc"
+      },
+      {
+        "label": "PC 15",
+        "url": "https://www.youtube.com/watch?v=DdWtVJe-f6Q"
+      },
+      {
+        "label": "PC 16",
+        "url": "https://www.youtube.com/watch?v=y9qX5tnMM8o"
+      },
+      {
+        "label": "PC 17",
+        "url": "https://www.youtube.com/watch?v=p5uqB2WUdfQ"
+      },
+      {
+        "label": "PC 18",
+        "url": "https://www.youtube.com/watch?v=hDyInCduxfU"
+      },
+      {
+        "label": "PC 19",
+        "url": "https://www.youtube.com/watch?v=IlcIDDwMTpQ"
+      },
+      {
+        "label": "PC 20",
+        "url": "https://www.youtube.com/watch?v=9iQKD66yQzY"
+      },
+      {
+        "label": "PC 21",
+        "url": "https://www.youtube.com/watch?v=D982GSUr-zI"
+      },
+      {
+        "label": "PC 22",
+        "url": "https://www.youtube.com/watch?v=jCok-U5nxT4"
+      }
+    ]
+  },
+  "Number System": {
+    "Numbers": [
+      {
+        "label": "N 1",
+        "url": "https://www.youtube.com/watch?v=_g89_8Bb57g"
+      },
+      {
+        "label": "N 2",
+        "url": "https://www.youtube.com/watch?v=KiG0yg61alo"
+      },
+      {
+        "label": "N 3",
+        "url": "https://www.youtube.com/watch?v=JU-b_Zu-z7U"
+      }
+    ],
+    "Factorials": [
+      {
+        "label": "F 1",
+        "url": "https://www.youtube.com/watch?v=V85eME7WS0E"
+      },
+      {
+        "label": "F 2",
+        "url": "https://www.youtube.com/watch?v=5AbOcjrxJ34"
+      },
+      {
+        "label": "F 3",
+        "url": "https://www.youtube.com/watch?v=mmj4QW5p8Bc"
+      },
+      {
+        "label": "F 4",
+        "url": "https://www.youtube.com/watch?v=sbyU48ZOsVM"
+      },
+      {
+        "label": "F 5",
+        "url": "https://www.youtube.com/watch?v=Roj0wDIN0ck"
+      },
+      {
+        "label": "F 6",
+        "url": "https://www.youtube.com/watch?v=GrbyiWvFYwA"
+      }
+    ],
+    "Remainders": [
+      {
+        "label": "R 1",
+        "url": "https://www.youtube.com/watch?v=1PYOIpFFwC4"
+      },
+      {
+        "label": "R 2",
+        "url": "https://www.youtube.com/watch?v=kB3BaJcrnJA"
+      },
+      {
+        "label": "R 3",
+        "url": "https://www.youtube.com/watch?v=hzlafE36Zvc"
+      },
+      {
+        "label": "R 4.1",
+        "url": "https://www.youtube.com/watch?v=NEDVnjh26JE"
+      },
+      {
+        "label": "R 4.2",
+        "url": "https://www.youtube.com/watch?v=WY49oDwCoDo"
+      },
+      {
+        "label": "R 5",
+        "url": "https://www.youtube.com/watch?v=DsyZWi6R9cw"
+      },
+      {
+        "label": "R 6",
+        "url": "https://www.youtube.com/watch?v=z7_vHO9JL9Y"
+      },
+      {
+        "label": "R 7",
+        "url": "https://www.youtube.com/watch?v=nZasw0eAO1M"
+      },
+      {
+        "label": "R 8",
+        "url": "https://www.youtube.com/watch?v=zhfDQvS7EnU"
+      }
+    ],
+    "Divisibility Rules": [
+      {
+        "label": "DR 1",
+        "url": "https://www.youtube.com/watch?v=p0JbJd5DpWY"
+      },
+      {
+        "label": "DR 2",
+        "url": "https://www.youtube.com/watch?v=SSq9C2O6cco"
+      },
+      {
+        "label": "DR 3",
+        "url": "https://www.youtube.com/watch?v=NqgFXVIrRmY"
+      },
+      {
+        "label": "DR 4",
+        "url": "https://www.youtube.com/watch?v=rb3Sk_L7vMQ"
+      }
+    ],
+    "Difference of Perfect Square": [
+      {
+        "label": "DPS 1",
+        "url": "https://www.youtube.com/watch?v=JdPktfXuY0k"
+      },
+      {
+        "label": "DPS 2",
+        "url": "https://www.youtube.com/watch?v=sdQfevZ77vg"
+      },
+      {
+        "label": "DPS 3",
+        "url": "https://www.youtube.com/watch?v=fJKyC5IyTr4"
+      }
+    ],
+    "Factors": [
+      {
+        "label": "FS 1",
+        "url": "https://www.youtube.com/watch?v=co30DI-DAlU"
+      },
+      {
+        "label": "FS 2",
+        "url": "https://www.youtube.com/watch?v=2QzEjiXOtfc"
+      },
+      {
+        "label": "FS 3",
+        "url": "https://www.youtube.com/watch?v=_Rp6Pzfk8r0"
+      },
+      {
+        "label": "FS 4",
+        "url": "https://www.youtube.com/watch?v=Y4v_WqJGfE0"
+      },
+      {
+        "label": "FS 5",
+        "url": "https://www.youtube.com/watch?v=KWfgORk6XAk"
+      },
+      {
+        "label": "FS 6",
+        "url": "https://www.youtube.com/watch?v=Fb4OWYnCwrw"
+      },
+      {
+        "label": "FS 7",
+        "url": "https://www.youtube.com/watch?v=fYrmFUomDYU"
+      },
+      {
+        "label": "FS 8",
+        "url": "https://www.youtube.com/watch?v=okXfBsuXsbk"
+      },
+      {
+        "label": "FS 9",
+        "url": "https://www.youtube.com/watch?v=MZ2tVjANADY"
+      },
+      {
+        "label": "FS 10",
+        "url": "https://www.youtube.com/watch?v=p-Rcw7dikaM"
+      },
+      {
+        "label": "FS 11",
+        "url": "https://www.youtube.com/watch?v=BM4NMqu7qbc"
+      },
+      {
+        "label": "FS 12",
+        "url": "https://www.youtube.com/watch?v=ql8lPaV4b6g"
+      }
+    ],
+    "HCF LCM": [
+      {
+        "label": "HCF 1",
+        "url": "https://www.youtube.com/watch?v=JyN6EROdhrw"
+      },
+      {
+        "label": "HCF 2",
+        "url": "https://www.youtube.com/watch?v=0S_rT7720t8"
+      },
+      {
+        "label": "HCF 3",
+        "url": "https://www.youtube.com/watch?v=GUsdagnVKFA"
+      },
+      {
+        "label": "HCF 4",
+        "url": "https://www.youtube.com/watch?v=Ikxsz4En-RQ"
+      },
+      {
+        "label": "HCF 5",
+        "url": "https://www.youtube.com/watch?v=pHyuUy_spww"
+      }
+    ],
+    "Last 2 Digits Even/Odd": [
+      {
+        "label": "L2D 1",
+        "url": "https://www.youtube.com/watch?v=8s1Na4rE1nU"
+      },
+      {
+        "label": "L2D 2",
+        "url": "https://www.youtube.com/watch?v=lk_gmCe96ss"
+      }
+    ],
+    "Base Systems": [
+      {
+        "label": "BS 1",
+        "url": "https://www.youtube.com/watch?v=lR2znNLWryk"
+      },
+      {
+        "label": "BS 2",
+        "url": "https://www.youtube.com/watch?v=Dgk10V8cvOs"
+      },
+      {
+        "label": "BS 3",
+        "url": "https://www.youtube.com/watch?v=fF8ptwkxjVA"
+      },
+      {
+        "label": "BS 4",
+        "url": "https://www.youtube.com/watch?v=XIKlSIM9f3M"
+      }
+    ],
+    "Recurring Decimals": [
+      {
+        "label": "RD 1",
+        "url": "https://www.youtube.com/watch?v=NKY2Y3nS8cw"
+      }
+    ]
+  },
+  "Geometry": {
+    "Introduction": [
+      {
+        "label": "IN 1",
+        "url": "https://www.youtube.com/watch?v=rUI1bbCvk7E"
+      }
+    ],
+    "Triangles": [
+      {
+        "label": "T 1",
+        "url": "https://www.youtube.com/watch?v=25P2O9r3AfM"
+      },
+      {
+        "label": "T 2",
+        "url": "https://www.youtube.com/watch?v=8T1yLs03Y74"
+      },
+      {
+        "label": "T3",
+        "url": "https://www.youtube.com/watch?v=uDGOgVvUrcc"
+      },
+      {
+        "label": "T 4",
+        "url": "https://www.youtube.com/watch?v=rfCcWNh3cjs"
+      },
+      {
+        "label": "T 5",
+        "url": "https://www.youtube.com/watch?v=8VwTpi1xHnc"
+      },
+      {
+        "label": "T 6",
+        "url": "https://www.youtube.com/watch?v=GAWnMfYzQKQ"
+      },
+      {
+        "label": "T 7",
+        "url": "https://www.youtube.com/watch?v=wVc1sXfYSyI"
+      },
+      {
+        "label": "T 8",
+        "url": "https://www.youtube.com/watch?v=Q5IDYE6e4mo"
+      },
+      {
+        "label": "T 9",
+        "url": "https://www.youtube.com/watch?v=hKyCT4T4Q4M"
+      },
+      {
+        "label": "T 10",
+        "url": "https://www.youtube.com/watch?v=c_Abx1YkGbE"
+      },
+      {
+        "label": "T 11",
+        "url": "https://www.youtube.com/watch?v=GJu0L7KeXAg"
+      },
+      {
+        "label": "T 12",
+        "url": "https://www.youtube.com/watch?v=hlwCd_1zVgY"
+      },
+      {
+        "label": "T 13",
+        "url": "https://www.youtube.com/watch?v=Y68H-ARhV90"
+      }
+    ],
+    "Quadrilaterals": [
+      {
+        "label": "Q 1",
+        "url": "https://www.youtube.com/watch?v=TZadcVDti64"
+      },
+      {
+        "label": "Q 2",
+        "url": "https://www.youtube.com/watch?v=0h9-VSm6Hfo"
+      },
+      {
+        "label": "Q 3",
+        "url": "https://www.youtube.com/watch?v=Dy4_ESXGjeY"
+      }
+    ],
+    "Circles": [
+      {
+        "label": "C 1",
+        "url": "https://www.youtube.com/watch?v=EAz4sd6svzo"
+      },
+      {
+        "label": "C 2",
+        "url": "https://www.youtube.com/watch?v=nZR9cijpmkQ"
+      },
+      {
+        "label": "C 3",
+        "url": "https://www.youtube.com/watch?v=BAlO-DvSWic"
+      }
+    ],
+    "Mensuration": [
+      {
+        "label": "M 1",
+        "url": "https://www.youtube.com/watch?v=HhtLt2JZKu4"
+      },
+      {
+        "label": "M 2",
+        "url": "https://www.youtube.com/watch?v=jQmPUysLjlg"
+      },
+      {
+        "label": "M 3",
+        "url": "https://www.youtube.com/watch?v=fxu0gBgnB78"
+      },
+      {
+        "label": "M 4",
+        "url": "https://www.youtube.com/watch?v=ADkdD9aEhas"
+      }
+    ]
+  }
+}

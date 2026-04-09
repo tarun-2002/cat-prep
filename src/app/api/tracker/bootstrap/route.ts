@@ -4,6 +4,14 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { DEFAULT_TOPICS } from "@/lib/topic-seed";
 import type { SubmissionRow, SubtopicRow, TopicRow } from "@/lib/types";
 
+type VideoRow = {
+  id: string;
+  subtopic_id: string;
+  label: string;
+  url: string;
+  display_order: number;
+};
+
 async function ensureTopics() {
   const { data: existingTopics, error } = await supabaseServer
     .from("topics")
@@ -83,6 +91,7 @@ export async function GET(request: Request) {
     const [
       { data: topics, error: topicsError },
       { data: subtopics, error: subtopicsError },
+      { data: videos, error: videosError },
       { data: submissions, error: submissionsError },
       { data: pendingReviews, error: pendingReviewsError },
     ] =
@@ -97,6 +106,10 @@ export async function GET(request: Request) {
           .select("*")
           .order("display_order", { ascending: true }),
         supabaseServer
+          .from("videos")
+          .select("*")
+          .order("display_order", { ascending: true }),
+        supabaseServer
           .from("topic_submissions")
           .select("*")
           .eq("user_id", user.id),
@@ -107,10 +120,11 @@ export async function GET(request: Request) {
           .neq("user_id", user.id),
       ]);
 
-    if (topicsError || subtopicsError || submissionsError || pendingReviewsError) {
+    if (topicsError || subtopicsError || videosError || submissionsError || pendingReviewsError) {
       const message =
         topicsError?.message ||
         subtopicsError?.message ||
+        videosError?.message ||
         submissionsError?.message ||
         pendingReviewsError?.message;
       return NextResponse.json({ error: message ?? "Failed to load tracker" }, { status: 400 });
@@ -118,6 +132,7 @@ export async function GET(request: Request) {
 
     const typedTopics = (topics ?? []) as TopicRow[];
     const typedSubtopics = (subtopics ?? []) as SubtopicRow[];
+    const typedVideos = (videos ?? []) as VideoRow[];
     const typedSubmissions = (submissions ?? []) as SubmissionRow[];
     const pending = pendingReviews ?? [];
 
@@ -143,6 +158,13 @@ export async function GET(request: Request) {
       subtopicsByTopic.set(subtopic.topic_id, list);
     }
 
+    const videosBySubtopic = new Map<string, VideoRow[]>();
+    for (const video of typedVideos) {
+      const list = videosBySubtopic.get(video.subtopic_id) ?? [];
+      list.push(video);
+      videosBySubtopic.set(video.subtopic_id, list);
+    }
+
     const totalBySection = { QUANT: 0, DILR: 0, VARC: 0 };
     const approvedBySection = { QUANT: 0, DILR: 0, VARC: 0 };
 
@@ -164,6 +186,12 @@ export async function GET(request: Request) {
             ...subtopic,
             completed: approvedSubtopicIds.has(subtopic.id),
             latest_submission: latest,
+            videos: (videosBySubtopic.get(subtopic.id) ?? []).map((video) => ({
+              id: video.id,
+              label: video.label,
+              url: video.url,
+              display_order: video.display_order,
+            })),
           };
         });
         return {
