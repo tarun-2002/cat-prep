@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { DateRange, DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import type { LucideIcon } from "lucide-react";
@@ -520,12 +521,18 @@ export default function Home() {
                 <ClipboardCheck size={14} />
                 Daily Progress Dashboard
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">IIM - ABC</h1>
+              <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">IIM - ABC 🥷</h1>
               <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
                 <UserCircle2 size={15} /> {user.email}
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <Link
+                href="/resources"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Resources
+              </Link>
               <button
                 onClick={() => setIsReviewDrawerOpen(true)}
                 className="relative inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"

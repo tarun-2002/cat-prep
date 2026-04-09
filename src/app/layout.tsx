@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Competitive Exam Preparation Tracker",
-  description: "Track study progress with secure Supabase login.",
+  title: "CAT Prep",
+  description: "Track your study progress and achieve your goals.",
 };
 
 export default function RootLayout({

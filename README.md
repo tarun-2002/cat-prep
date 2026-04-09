@@ -19,6 +19,10 @@ Competitive exam preparation tracker built with Next.js and Supabase Auth.
   - create a week plan with date + selected subtopics
   - plan is visible to all users
   - dashboard shows weekly completed vs remaining goals
+- Resources page:
+  - open from dashboard header `Resources` button
+  - add resources with name, description, and link array
+  - all resources visible to all users
 
 ## Environment Variables
 
@@ -45,6 +49,7 @@ Also run:
 - `supabase-subtopics-migration.sql`
 - `supabase-videos-migration.sql`
 - `supabase-weekly-plans-migration.sql`
+- `supabase-resources-migration.sql`
 
 ## Run
 
