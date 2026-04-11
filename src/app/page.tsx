@@ -54,6 +54,7 @@ type Topic = {
 type ReviewQueueItem = {
   id: string;
   user_id: string;
+  submitter_email: string | null;
   subtopic_id: string | null;
   topic_questions_done: number;
   pyq_questions_done: number;
@@ -957,7 +958,10 @@ export default function Home() {
                     </span>
                   </div>
                   <p className="text-sm text-slate-600">
-                    Submitted by: <span className="font-medium">{item.user_id}</span>
+                    Submitted by:{" "}
+                    <span className="font-medium text-slate-800">
+                      {item.submitter_email ?? item.user_id}
+                    </span>
                   </p>
                   <p className="text-sm text-slate-600">
                     Topic questions: <span className="font-medium">{item.topic_questions_done}</span>

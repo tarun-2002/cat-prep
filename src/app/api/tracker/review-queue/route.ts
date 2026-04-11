@@ -40,9 +40,21 @@ export async function GET(request: Request) {
     return !existing.some((r) => r.reviewer_id === user.id);
   });
 
+  const uniqueUserIds = Array.from(new Set(filtered.map((s) => s.user_id)));
+  const emailByUserId = new Map<string, string>();
+  await Promise.all(
+    uniqueUserIds.map(async (userId) => {
+      const { data, error } = await supabaseServer.auth.admin.getUserById(userId);
+      if (!error && data.user?.email) {
+        emailByUserId.set(userId, data.user.email);
+      }
+    }),
+  );
+
   return NextResponse.json({
     items: filtered.map((submission) => ({
       ...submission,
+      submitter_email: emailByUserId.get(submission.user_id) ?? null,
       reviews: grouped.get(submission.id) ?? [],
     })),
   });
